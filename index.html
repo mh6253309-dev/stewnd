@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سجل تشغيلات Reno Travel Limousine & Travel</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- FontAwesome للأيقونات -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap');
+        body { font-family: 'Cairo', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen p-3 md:p-6 text-slate-800">
+
+    <div class="max-w-6xl mx-auto space-y-6">
+
+        <!-- الهيدر الرئيسي الفاخر مع شعار اللوجو كبير وبطول المستطيل الأزرق -->
+        <div class="bg-gradient-to-r from-blue-900 via-indigo-900 to-blue-950 border border-amber-400/40 text-white rounded-2xl p-4 md:p-5 shadow-xl flex flex-col md:flex-row justify-between items-stretch gap-4 min-h-[140px]">
+            <div class="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-right w-full md:w-auto">
+                <!-- صورة الشعار بطول الهيدر كاملاً -->
+                <div class="bg-white/10 border-2 border-amber-400/50 p-1 rounded-2xl overflow-hidden shadow-2xl flex items-center justify-center shrink-0 h-32 w-32 sm:h-36 sm:w-36 md:h-full md:w-40">
+                    <img src="https://plain-eeur-prod-public.komododecks.com/202610/22/VeZ6QAn5TFgY0jBH3QJa/image.jpg" alt="Reno Travel Logo" class="w-full h-full object-cover rounded-xl shadow">
+                </div>
+                <div class="flex flex-col justify-center">
+                    <h1 class="text-3xl md:text-4xl lg:text-5xl font-black text-amber-400 tracking-wider">RENO TRAVEL</h1>
+                    <p class="text-xs sm:text-sm text-blue-100 font-semibold tracking-widest mt-1">LIMOUSINE & TRAVEL SERVICES</p>
+                    <p class="text-xs text-blue-200 mt-1">نظام إدارة الحسابات والتشغيل اليومي المتقدم</p>
+                </div>
+            </div>
+            
+            <div class="flex flex-wrap gap-2 justify-center items-center">
+                <button onclick="exportToExcel()" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-4 py-2.5 rounded-xl text-sm transition flex items-center gap-2 shadow-md hover:shadow-amber-500/20 cursor-pointer">
+                    <i class="fa-solid fa-file-excel"></i> تحميل سجل إكسل الشامل
+                </button>
+            </div>
+        </div>
+
+        <!-- شريط التحكم وتحديد التاريخ والمسؤول -->
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+            
+            <!-- تحديد التاريخ تلقائياً أو اختيار تاريخ آخر -->
+            <div class="bg-blue-50/80 border border-blue-100 p-3 rounded-xl flex flex-col justify-center">
+                <label class="block text-xs font-bold text-blue-800 mb-1 flex items-center gap-1">
+                    <i class="fa-regular fa-calendar-days text-blue-600"></i> تاريخ التشغيل:
+                </label>
+                <input type="date" id="datePicker" onchange="onDateChange()" class="w-full bg-white border border-blue-300 text-blue-900 font-bold rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none cursor-pointer text-center">
+            </div>
+
+            <!-- تحديد المسؤول -->
+            <div class="bg-amber-50/80 border border-amber-200/80 p-3 rounded-xl">
+                <label class="block text-xs font-bold text-amber-900 mb-1 flex items-center gap-1">
+                    <i class="fa-solid fa-user-shield text-amber-600"></i> المسؤول اليومي:
+                </label>
+                <select id="supervisorSelect" onchange="updateSupervisor()" class="w-full bg-white border border-amber-300 text-amber-900 font-bold rounded-lg p-2 text-sm focus:ring-2 focus:ring-amber-500 outline-none cursor-pointer">
+                    <option value="محمد حنفي">محمد حنفي</option>
+                    <option value="مصطفي حجازي">مصطفي حجازي</option>
+                    <option value="يوسف وائل">يوسف وائل</option>
+                    <option value="محمد حاتم">محمد حاتم</option>
+                </select>
+            </div>
+
+            <!-- إجمالي اليوم -->
+            <div class="bg-emerald-50/80 border border-emerald-100 p-3 rounded-xl flex items-center justify-between">
+                <div>
+                    <span class="text-xs text-emerald-700 font-bold block">إجمالي اليوم المحدد</span>
+                    <span id="dayTotalBadge" class="text-xl font-black text-emerald-600">0 جنيه</span>
+                </div>
+                <i class="fa-solid fa-calculator text-emerald-400/40 text-3xl"></i>
+            </div>
+        </div>
+
+        <!-- نموذج إدخال تشغيلة جديدة -->
+        <div class="bg-white border border-slate-200 p-4 rounded-2xl shadow-sm">
+            <h2 class="text-sm font-bold text-blue-900 mb-3 flex items-center gap-2">
+                <i class="fa-solid fa-plus-circle text-amber-500"></i> إضافة حركة تشغيل جديدة
+            </h2>
+            <form onsubmit="addTrip(event)" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-12 gap-3">
+                <!-- اسم السائق / العميل -->
+                <div class="md:col-span-3">
+                    <label class="block text-xs text-slate-600 mb-1 font-bold">اسم السائق / العميل</label>
+                    <input type="text" id="driverName" placeholder="أحمد علي" required class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-sm text-slate-800 placeholder-slate-400 focus:bg-white focus:border-blue-600 outline-none">
+                </div>
+                <!-- اسم المندوب -->
+                <div class="md:col-span-2">
+                    <label class="block text-xs text-slate-600 mb-1 font-bold">اسم المندوب</label>
+                    <input type="text" id="agentName" placeholder="محمود" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-sm text-slate-800 placeholder-slate-400 focus:bg-white focus:border-blue-600 outline-none">
+                </div>
+                <!-- رقم السيارة -->
+                <div class="md:col-span-2">
+                    <label class="block text-xs text-slate-600 mb-1 font-bold">رقم السيارة</label>
+                    <input type="text" id="carNumber" placeholder="أ ب ج 123" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-sm text-slate-800 placeholder-slate-400 focus:bg-white focus:border-blue-600 outline-none">
+                </div>
+                <!-- تفاصيل التشغيل -->
+                <div class="md:col-span-3">
+                    <label class="block text-xs text-slate-600 mb-1 font-bold">تفاصيل التشغيل</label>
+                    <input type="text" id="tripDetails" placeholder="توصيل مطار القاهرة" required class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-sm text-slate-800 placeholder-slate-400 focus:bg-white focus:border-blue-600 outline-none">
+                </div>
+                <!-- المبلغ -->
+                <div class="md:col-span-2">
+                    <label class="block text-xs text-slate-600 mb-1 font-bold">المبلغ (جنيه)</label>
+                    <input type="number" id="tripAmount" placeholder="0" min="0" step="any" required class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-sm font-bold text-emerald-600 placeholder-slate-400 focus:bg-white focus:border-blue-600 outline-none">
+                </div>
+                <!-- الملاحظات -->
+                <div class="md:col-span-10">
+                    <input type="text" id="tripNotes" placeholder="ملاحظات إضافية (اختياري - دفع كارتة / عودة مع العميل)" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs text-slate-700 placeholder-slate-400 focus:bg-white focus:border-blue-600 outline-none">
+                </div>
+                <!-- زر الحفظ -->
+                <div class="md:col-span-2 flex items-end">
+                    <button type="submit" class="w-full bg-blue-900 hover:bg-blue-800 text-amber-400 font-black py-2.5 rounded-xl text-sm transition flex items-center justify-center gap-1 shadow cursor-pointer">
+                        <i class="fa-solid fa-check"></i> حفظ الحركة
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- جدول البيانات اليومي -->
+        <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+            <div class="bg-slate-900 text-white p-4 flex justify-between items-center border-b border-slate-800">
+                <div class="flex items-center gap-3">
+                    <img src="https://plain-eeur-prod-public.komododecks.com/202610/22/VeZ6QAn5TFgY0jBH3QJa/image.jpg" alt="Logo" class="w-12 h-12 object-cover rounded-xl border border-amber-400">
+                    <div>
+                        <h2 class="text-xl font-black text-amber-400">Reno Travel</h2>
+                        <p class="text-xs text-slate-300">بيان اليومية والحركات المسجلة</p>
+                    </div>
+                </div>
+                <div class="text-left text-xs space-y-1">
+                    <div><span class="text-slate-400">التاريخ: </span><span id="cardDate" class="font-bold text-white"></span></div>
+                    <div><span class="text-slate-400">المسؤول: </span><span id="cardSupervisor" class="font-bold text-amber-400"></span></div>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto p-2">
+                <table class="w-full text-right border-collapse">
+                    <thead>
+                        <tr class="bg-slate-100 text-slate-700 text-xs font-bold border-b border-slate-200">
+                            <th class="p-3">#</th>
+                            <th class="p-3">الاسم</th>
+                            <th class="p-3">المندوب</th>
+                            <th class="p-3">رقم السيارة</th>
+                            <th class="p-3">بيان التشغيل</th>
+                            <th class="p-3">الملاحظات</th>
+                            <th class="p-3">المبلغ</th>
+                            <th class="p-3 text-center">حذف</th>
+                        </tr>
+                    </thead>
+                    <tbody id="todayTripsBody" class="divide-y divide-slate-100 text-sm">
+                        <!-- تضاف التشغيلات هنا -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- إجمالي الكارت وزر حفظ وإرسال نسخة للواتساب -->
+            <div class="bg-slate-50 border-t border-slate-200 p-4 flex flex-col sm:flex-row justify-between items-center gap-3">
+                <div class="flex items-center gap-3">
+                    <span class="font-bold text-slate-700 text-sm">الإجمالي العام لليوم المحدد:</span>
+                    <span id="cardTotal" class="text-2xl font-black text-emerald-600">0 جنيه</span>
+                </div>
+
+                <button onclick="sendToWhatsAppDirect()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-3 rounded-xl text-sm transition flex items-center gap-2 shadow-md hover:scale-105 active:scale-95 cursor-pointer">
+                    <i class="fa-brands fa-whatsapp text-xl"></i> حفظ وارسال نسخه
+                </button>
+            </div>
+        </div>
+
+        <!-- الأرشيف السفلي لجميع الأيام المسجلة مرتبة من القديم إلى الحديث -->
+        <div class="bg-white border border-slate-200 p-4 rounded-2xl shadow-sm space-y-3">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-2">
+                <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2">
+                    <i class="fa-solid fa-box-archive text-amber-600"></i> أرشيف الأيام المسجلة (مرتبة بالتاريخ)
+                </h3>
+                <button onclick="clearArchive()" class="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 text-xs font-bold px-3 py-1.5 rounded-lg transition flex items-center gap-1 cursor-pointer">
+                    <i class="fa-solid fa-trash-arrow-up"></i> تصفير الأرشيف بالكامل
+                </button>
+            </div>
+            <div id="archiveContainer" class="space-y-2">
+                <!-- سجلات الأرشيف -->
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const TARGET_WHATSAPP_PHONE = "201153211261";
+        const daysArabic = ["الأحد", "الإثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"];
+        
+        let currentDateKey = "";
+        let currentDayName = "";
+        let formattedDateStr = "";
+
+        let store = JSON.parse(localStorage.getItem('reno_travel_final_store')) || {};
+
+        function initApp() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+
+            const todayISO = `${year}-${month}-${day}`;
+            document.getElementById('datePicker').value = todayISO;
+
+            loadDateData(todayISO);
+        }
+
+        function onDateChange() {
+            const selectedDate = document.getElementById('datePicker').value;
+            if (selectedDate) {
+                loadDateData(selectedDate);
+            }
+        }
+
+        function loadDateData(dateKey) {
+            currentDateKey = dateKey;
+            
+            const parts = dateKey.split('-');
+            const year = parseInt(parts[0], 10);
+            const month = parseInt(parts[1], 10);
+            const day = parseInt(parts[2], 10);
+
+            const dateObj = new Date(year, month - 1, day);
+            currentDayName = daysArabic[dateObj.getDay()] || '';
+
+            // التنسيق المنظم للعرض: اليوم/الشهر/السنة
+            formattedDateStr = `${currentDayName} ${day}/${month}/${year}`;
+
+            document.getElementById('cardDate').innerText = formattedDateStr;
+
+            if (!store[currentDateKey]) {
+                store[currentDateKey] = {
+                    dayName: currentDayName,
+                    dateStr: `${day}/${month}/${year}`,
+                    supervisor: "محمد حنفي",
+                    trips: []
+                };
+                saveStore();
+            }
+
+            document.getElementById('supervisorSelect').value = store[currentDateKey].supervisor || "محمد حنفي";
+            updateCardSupervisor();
+
+            renderTodayTrips();
+            renderArchive();
+        }
+
+        function updateSupervisor() {
+            const val = document.getElementById('supervisorSelect').value;
+            if (store[currentDateKey]) {
+                store[currentDateKey].supervisor = val;
+                saveStore();
+                updateCardSupervisor();
+                renderArchive();
+            }
+        }
+
+        function updateCardSupervisor() {
+            document.getElementById('cardSupervisor').innerText = store[currentDateKey] ? (store[currentDateKey].supervisor || "محمد حنفي") : "محمد حنفي";
+        }
+
+        function addTrip(e) {
+            e.preventDefault();
+            const driver = document.getElementById('driverName').value.trim();
+            const agentName = document.getElementById('agentName').value.trim() || '-';
+            const carNumber = document.getElementById('carNumber').value.trim() || '-';
+            const details = document.getElementById('tripDetails').value.trim();
+            const notes = document.getElementById('tripNotes').value.trim() || '-';
+            const amount = parseFloat(document.getElementById('tripAmount').value) || 0;
+
+            if (!driver || !details) return;
+
+            if (!store[currentDateKey]) {
+                const parts = currentDateKey.split('-');
+                store[currentDateKey] = {
+                    dayName: currentDayName,
+                    dateStr: `${parseInt(parts[2])}/${parseInt(parts[1])}/${parseInt(parts[0])}`,
+                    supervisor: document.getElementById('supervisorSelect').value,
+                    trips: []
+                };
+            }
+
+            store[currentDateKey].trips.push({
+                id: Date.now(),
+                driver: driver,
+                agentName: agentName,
+                carNumber: carNumber,
+                details: details,
+                notes: notes,
+                amount: amount
+            });
+
+            saveStore();
+            renderTodayTrips();
+            renderArchive();
+
+            document.getElementById('driverName').value = '';
+            document.getElementById('agentName').value = '';
+            document.getElementById('carNumber').value = '';
+            document.getElementById('tripDetails').value = '';
+            document.getElementById('tripNotes').value = '';
+            document.getElementById('tripAmount').value = '';
+            document.getElementById('driverName').focus();
+        }
+
+        function deleteTrip(id) {
+            if (store[currentDateKey] && store[currentDateKey].trips) {
+                store[currentDateKey].trips = store[currentDateKey].trips.filter(t => t.id !== id);
+                saveStore();
+                renderTodayTrips();
+                renderArchive();
+            }
+        }
+
+        function clearArchive() {
+            if (confirm("هل أنت متأكد من رغبتك في تصفير الأرشيف ومسح كافة السجلات الحالية؟")) {
+                store = {};
+                saveStore();
+                initApp();
+            }
+        }
+
+        function renderTodayTrips() {
+            const tbody = document.getElementById('todayTripsBody');
+            tbody.innerHTML = '';
+            
+            const trips = store[currentDateKey] ? (store[currentDateKey].trips || []) : [];
+            let total = 0;
+
+            if (trips.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" class="text-center p-6 text-slate-400">لا توجد تشغيلات مسجلة لهذا التاريخ حتى الآن</td></tr>`;
+            } else {
+                trips.forEach((trip, idx) => {
+                    total += trip.amount;
+                    const tr = document.createElement('tr');
+                    tr.className = "hover:bg-slate-50 transition";
+                    tr.innerHTML = `
+                        <td class="p-3 font-bold text-slate-400 text-xs">${idx + 1}</td>
+                        <td class="p-3 font-bold text-slate-800">${trip.driver}</td>
+                        <td class="p-3 text-blue-700 font-bold text-xs">${trip.agentName || '-'}</td>
+                        <td class="p-3 text-amber-700 font-mono text-xs font-bold">${trip.carNumber || '-'}</td>
+                        <td class="p-3 text-slate-700">${trip.details}</td>
+                        <td class="p-3 text-slate-500 text-xs">${trip.notes || '-'}</td>
+                        <td class="p-3 font-black text-emerald-600">${trip.amount.toLocaleString()} ج</td>
+                        <td class="p-3 text-center">
+                            <button onclick="deleteTrip(${trip.id})" class="text-red-400 hover:text-red-600 p-1">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+
+            document.getElementById('dayTotalBadge').innerText = total.toLocaleString() + ' جنيه';
+            document.getElementById('cardTotal').innerText = total.toLocaleString() + ' جنيه';
+        }
+
+        function renderArchive() {
+            const container = document.getElementById('archiveContainer');
+            container.innerHTML = '';
+
+            // ترتيب التواريخ تصاعدياً (من القديم إلى الحديث: 20 ثم 21 ثم 22)
+            const keys = Object.keys(store)
+                .filter(k => store[k] && store[k].trips && store[k].trips.length > 0)
+                .sort(); 
+
+            if (keys.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-400 text-center py-2">لا توجد حركات سابقة مؤرشفة حتى الآن</p>`;
+                return;
+            }
+
+            keys.forEach(key => {
+                const dayData = store[key];
+                const dayTotal = (dayData.trips || []).reduce((sum, t) => sum + t.amount, 0);
+                const isCurrent = (key === currentDateKey);
+
+                const div = document.createElement('div');
+                div.className = `border rounded-xl overflow-hidden text-xs ${isCurrent ? 'border-amber-300 bg-amber-50/30' : 'border-slate-200 bg-slate-50'}`;
+                div.innerHTML = `
+                    <div class="p-3 flex justify-between items-center cursor-pointer font-bold ${isCurrent ? 'bg-amber-100/50' : 'bg-slate-100'}" onclick="toggleArchiveDetail('${key}')">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-calendar-check ${isCurrent ? 'text-amber-600' : 'text-blue-600'}"></i>
+                            <span class="text-slate-800">${dayData.dayName} (${dayData.dateStr}) ${isCurrent ? '<span class="text-amber-700 text-[10px] bg-amber-200/80 px-1.5 py-0.5 rounded">(اليوم المحدد)</span>' : ''}</span>
+                            <span class="text-slate-500 font-normal hidden sm:inline">| المسؤول: ${dayData.supervisor}</span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-emerald-700 font-black">${dayTotal.toLocaleString()} جنيه</span>
+                            <i class="fa-solid fa-chevron-down text-slate-400"></i>
+                        </div>
+                    </div>
+                    <div id="archive-${key}" class="hidden p-3 bg-white border-t border-slate-200 divide-y divide-slate-100">
+                        ${(dayData.trips || []).map((t, i) => `
+                            <div class="py-2 flex flex-col sm:flex-row justify-between text-slate-700 gap-1">
+                                <div>
+                                    <span class="text-slate-400 font-bold ml-1">${i + 1}.</span>
+                                    <strong class="text-slate-900">${t.driver}</strong> 
+                                    <span class="text-blue-700 font-bold text-xs">[المندوب: ${t.agentName || '-'}]</span>
+                                    <span class="text-amber-800 font-mono text-xs font-bold">[سيارة: ${t.carNumber || '-'}]</span>: ${t.details}
+                                    ${t.notes && t.notes !== '-' ? `<span class="text-slate-500 text-xs block sm:inline"> (ملاحظة: ${t.notes})</span>` : ''}
+                                </div>
+                                <span class="font-bold text-emerald-600 shrink-0">${t.amount.toLocaleString()} ج</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function toggleArchiveDetail(key) {
+            const el = document.getElementById(`archive-${key}`);
+            if (el) el.classList.toggle('hidden');
+        }
+
+        function exportTodayExcel() {
+            const dayData = store[currentDateKey];
+            let csv = "\uFEFFم,اليوم والتاريخ,المسؤول,اسم السائق/العميل,اسم المندوب,رقم السيارة,تفاصيل التشغيل,الملاحظات,المبلغ (جنيه)\n";
+            
+            if (dayData && dayData.trips) {
+                dayData.trips.forEach((t, idx) => {
+                    csv += `"${idx + 1}","${dayData.dayName} ${dayData.dateStr}","${dayData.supervisor}","${t.driver}","${t.agentName || '-'}","${t.carNumber || '-'}","${t.details}","${t.notes || '-'}","${t.amount}"\n`;
+                });
+            }
+
+            const dayTotal = dayData && dayData.trips ? dayData.trips.reduce((s, t) => s + t.amount, 0) : 0;
+            csv += `\n"","","","","","","","الإجمالي العام:","${dayTotal}"\n`;
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `تفاصيل_تشغيل_${currentDateKey}.csv`;
+            link.click();
+        }
+
+        function sendToWhatsAppDirect() {
+            exportTodayExcel();
+
+            const dayData = store[currentDateKey];
+            const trips = dayData ? (dayData.trips || []) : [];
+            let totalAmount = trips.reduce((s, t) => s + t.amount, 0);
+
+            let msg = `🚗 *سجل تشغيلات Reno Travel*\n`;
+            msg += `📅 *اليوم والتاريخ:* ${formattedDateStr}\n`;
+            msg += `👤 *المسؤول:* ${dayData ? dayData.supervisor : ''}\n`;
+            msg += `------------------------------------\n`;
+            
+            if (trips.length === 0) {
+                msg += `لا توجد تشغيلات مسجلة لهذا التاريخ.\n`;
+            } else {
+                trips.forEach((t, idx) => {
+                    msg += `${idx + 1}. *${t.driver}*\n`;
+                    msg += `   └ المندوب: ${t.agentName || '-'}\n`;
+                    msg += `   └ السيارة: ${t.carNumber || '-'}\n`;
+                    msg += `   └ البيان: ${t.details}\n`;
+                    if (t.notes && t.notes !== '-') {
+                        msg += `   └ ملاحظات: ${t.notes}\n`;
+                    }
+                    msg += `   └ المبلغ: *${t.amount.toLocaleString()} ج*\n\n`;
+                });
+            }
+            
+            msg += `------------------------------------\n`;
+            msg += `💰 *الإجمالي العام:* *${totalAmount.toLocaleString()} جنيه*`;
+
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            let waBaseUrl = isMobile ? "https://api.whatsapp.com/send" : "https://web.whatsapp.com/send";
+            
+            let finalUrl = `${waBaseUrl}?phone=${TARGET_WHATSAPP_PHONE}&text=${encodeURIComponent(msg)}`;
+
+            window.open(finalUrl, '_blank');
+        }
+
+        function exportToExcel() {
+            let csv = "\uFEFFاليوم والتاريخ,المسؤول,اسم السائق/العميل,اسم المندوب,رقم السيارة,تفاصيل التشغيل,الملاحظات,المبلغ\n";
+            
+            Object.keys(store).forEach(key => {
+                const d = store[key];
+                if (d && d.trips && d.trips.length > 0) {
+                    d.trips.forEach(t => {
+                        csv += `"${d.dayName} ${d.dateStr}","${d.supervisor}","${t.driver}","${d.agentName || '-'}","${d.carNumber || '-'}","${d.details}","${d.notes || '-'}","${d.amount}"\n`;
+                    });
+                }
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `أرشيف_تشغيلات_Reno_Travel_الكامل.csv`;
+            link.click();
+        }
+
+        function saveStore() {
+            localStorage.setItem('reno_travel_final_store', JSON.stringify(store));
+        }
+
+        initApp();
+    </script>
+</body>
+</html>
